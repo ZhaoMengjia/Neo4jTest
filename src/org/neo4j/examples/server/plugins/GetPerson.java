@@ -1,8 +1,7 @@
 package org.neo4j.examples.server.plugins;
 
-import org.neo4j.cypher.ExecutionEngine;
-import org.neo4j.cypher.ExecutionResult;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.server.plugins.Description;
 import org.neo4j.server.plugins.PluginTarget;
@@ -14,18 +13,18 @@ public class GetPerson extends ServerPlugin
 {
     @Description( "Get all person amount" )
     @PluginTarget( GraphDatabaseService.class )
-    public Integer getZDRY( @Source GraphDatabaseService graphDb )
+    public String getPersonNum( @Source GraphDatabaseService graphDb )
     {
-        Integer personCount = 0;
-        try (Transaction tx = graphDb.beginTx())
+    	String personCount;
+        try ( Transaction tx = graphDb.beginTx() )
         {
-        	ExecutionEngine engine = new ExecutionEngine( graphDb, null );
-        	ExecutionResult result = engine.execute( "match (p: Person) return p" );
-        	personCount = result.length();
-        	
+        	String query = "match (p: Person) return count(p)";
+        	Result result = graphDb.execute( query );
+        	personCount = result.resultAsString();
+//        	System.out.println(result.columnAs("count(p)").next());
             tx.success();
         }
-        return personCount;
+		return personCount;
     }
 }
 // END SNIPPET: GetAll
